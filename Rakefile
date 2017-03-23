@@ -1,4 +1,5 @@
 require 'rake/testtask'
+require 'rake/notes/rake_task'
 
 task :default => [:test]
 task :build

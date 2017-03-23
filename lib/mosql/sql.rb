@@ -75,6 +75,7 @@ module MoSQL
         return unless next_id.is_a?(0.class)
         next_id += 1
         table_name = table.first_source_table
+        ## TODO check if sequence exists altogether
         sequence_altering_query = "ALTER SEQUENCE #{table_name}_id_seq RESTART WITH #{next_id}"
         log.info("Updating primary key sequence for #{table_name} with #{next_id}")
         table.db.run(sequence_altering_query)
