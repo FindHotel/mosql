@@ -42,6 +42,18 @@ db:
       - var_b:
         :source: vars.b
         :type: TEXT
+  with_hardcoded_value:
+    :meta:
+      :table: sqltable5
+    :columns:
+      - _id: TEXT
+      - var_a:
+        :source: vars.a
+        :value: harcoded_value_a
+        :type: TEXT
+      - var_b:
+        :value: 'harcoded_value::b'
+        :type: TEXT
 EOF
 
   before do
@@ -51,6 +63,7 @@ EOF
     @sequel.drop_table?(:sqltable2)
     @sequel.drop_table?(:sqltable3)
     @sequel.drop_table?(:sqltable4)
+    @sequel.drop_table?(:sqltable5)
     @map.create_schema(@sequel)
   end
 
@@ -58,6 +71,7 @@ EOF
   def table2; @sequel[:sqltable2]; end
   def table3; @sequel[:sqltable3]; end
   def table4; @sequel[:sqltable4]; end
+  def table5; @sequel[:sqltable5]; end
 
   it 'Creates the tables with the right columns' do
     assert_equal(Set.new([:_id, :var, :arry]),
@@ -135,6 +149,27 @@ EOF
     assert_equal({'vars' => { 'c' => 6} }, JSON.parse(o[:_extra_props]))
     assert_equal(Time, o[:created_at].class)
     assert_equal(Time, o[:updated_at].class)
+  end
+
+  it 'Can ASSIGN hardcoded values' do
+    objects = [
+               {'_id' => "a", 'vars' => {'a' => 1, 'b' => 2}},
+               {'_id' => "b", 'vars' => {}},
+               {'_id' => "c", 'vars' => {'a' => 2, 'c' => 6}},
+              ]
+    @map.copy_data(@sequel, 'db.with_hardcoded_value', objects.map { |o| @map.transform('db.with_hardcoded_value', o) } )
+    assert_equal(3, table5.count)
+    o = table5.first(:_id => 'a')
+    assert_equal('harcoded_value_a', o[:var_a])
+    assert_equal('harcoded_value::b', o[:var_b])
+
+    o = table5.first(:_id => 'b')
+    assert_equal('harcoded_value_a', o[:var_a])
+    assert_equal('harcoded_value::b', o[:var_b])
+
+    o = table5.first(:_id => 'c')
+    assert_equal('harcoded_value_a', o[:var_a])
+    assert_equal('harcoded_value::b', o[:var_b])
   end
 
   it 'Can transform BSON::ObjectIDs' do

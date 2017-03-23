@@ -69,6 +69,9 @@ types. An example collection map might be:
         - author_bio:
           :source: author.bio
           :type: TEXT
+        - category:
+          :value: travel
+          :type: TEXT
         - title: TEXT
         - created: DOUBLE PRECISION
         :meta:
@@ -90,6 +93,7 @@ Where a `<Collection Definition>` is a hash with `:columns` and
 describing that column. This hash may contain the following fields:
 
   * `:source`: The name of the attribute inside of MongoDB.
+  * `:value`: Assign a static value to column (overrides :source if present)
   * `:type`: (Mandatory) The SQL type.
 
 

@@ -11,6 +11,7 @@ module MoSQL
           # new configuration format
           col = {
             :source => ent.fetch(:source),
+            :value  => ent[:value],
             :type   => ent.fetch(:type),
             :name   => (ent.keys - [:source, :type]).first,
           }
@@ -19,6 +20,14 @@ module MoSQL
             :source => ent.first.first,
             :name   => ent.first.first,
             :type   => ent.first.last
+          }
+        elsif ent.is_a?(Hash) && !ent[:value].nil? && ent[:type].is_a?(String)
+          # hardcoded value format
+          col = {
+            :source => nil,
+            :value  => ent.fetch(:value),
+            :type   => ent.fetch(:type),
+            :name   => (ent.keys - [:source, :type]).first,
           }
         else
           raise SchemaError.new("Invalid ordered hash entry #{ent.inspect}")
@@ -93,7 +102,7 @@ module MoSQL
 
               if composite_key and composite_key.include?(col[:name])
                 keys << col[:name].to_sym
-              elsif not composite_key and col[:source].to_sym == :_id
+              elsif not composite_key and col[:source] and col[:source].to_sym == :_id
                 keys << col[:name].to_sym
               end
             end
@@ -148,25 +157,6 @@ module MoSQL
       schema
     end
 
-    def fetch_and_delete_dotted(obj, dotted)
-      pieces = dotted.split(".")
-      breadcrumbs = []
-      while pieces.length > 1
-        key = pieces.shift
-        breadcrumbs << [obj, key]
-        obj = obj[key]
-        return nil unless obj.is_a?(Hash)
-      end
-
-      val = obj.delete(pieces.first)
-
-      breadcrumbs.reverse.each do |value, k|
-        value.delete(k) if value[k].empty?
-      end
-
-      val
-    end
-
     def fetch_exists(obj, dotted)
       pieces = dotted.split(".")
       while pieces.length > 1
@@ -188,6 +178,25 @@ module MoSQL
       else
         raise SchemaError.new("Unknown source: #{source}")
       end
+    end
+
+    def fetch_and_delete_dotted(obj, dotted)
+      pieces = dotted.split(".")
+      breadcrumbs = []
+      while pieces.length > 1
+        key = pieces.shift
+        breadcrumbs << [obj, key]
+        obj = obj[key]
+        return nil unless obj.is_a?(Hash)
+      end
+
+      val = obj.delete(pieces.first)
+
+      breadcrumbs.reverse.each do |value, k|
+        value.delete(k) if value[k].empty?
+      end
+
+      val
     end
 
     def transform_primitive(v, type=nil)
@@ -218,11 +227,13 @@ module MoSQL
 
       row = []
       schema[:columns].each do |col|
-
         source = col[:source]
+        value = col[:value]
         type = col[:type]
 
-        if source.start_with?("$")
+        if value
+          v = value
+        elsif source.start_with?("$")
           v = fetch_special_source(obj, source, original)
         else
           v = fetch_and_delete_dotted(obj, source)
