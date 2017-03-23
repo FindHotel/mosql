@@ -3,11 +3,15 @@ $:.unshift(File.expand_path("lib", File.dirname(__FILE__)))
 require 'mosql/version'
 
 Gem::Specification.new do |gem|
-  gem.authors       = ["Nelson Elhage"]
-  gem.email         = ["nelhage@stripe.com"]
-  gem.description   = %q{A library for streaming MongoDB to SQL}
-  gem.summary       = %q{MongoDB -> SQL streaming bridge}
-  gem.homepage      = "https://github.com/stripe/mosql"
+  gem.authors          = ["Nelson Elhage", "Mohamed Osama"]
+  gem.email            = ["nelhage@stripe.com", "oss@findhotel.net"]
+  gem.description      = %q{A library for streaming MongoDB to PostgreSQL}
+  gem.summary          = %q{MongoDB -> PostgreSQL streaming bridge}
+  # Forked from: https://github.com/stripe/mosql
+  gem.homepage         = "https://github.com/FindHotel/mosql"
+
+  gem.required_ruby_version     = ">= 2.0.0"
+
   gem.license       = "MIT"
 
   gem.files         = `git ls-files`.split($\)

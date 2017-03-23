@@ -1,8 +1,5 @@
 # MoSQL: a MongoDB → SQL streaming translator
 
-> _**MoSQL is no longer being actively maintained.**_
-> _If you are interested in helping maintain this repository, please let us know.  We would love for it to find a forever home with someone who can give it the love it needs!_
-
 [![Development](https://travis-ci.org/FindHotel/mosql.svg?branch=master)](https://travis-ci.org/FindHotel/mosql)
 
 At Stripe, we love MongoDB. We love the flexibility it gives us in
@@ -30,6 +27,11 @@ PostgreSQL instance, using an oplog tailer to keep the SQL mirror live
 up-to-date. This lets you run production services against a MongoDB
 database, and then run offline analytics or reporting using the full
 power of SQL.
+
+## Requirements
+* Ruby >= 2.0.0
+* MongoDB
+* PostgreSQL
 
 ## Installation
 
