@@ -8,7 +8,7 @@ Gem::Specification.new do |gem|
   gem.description   = %q{A library for streaming MongoDB to SQL}
   gem.summary       = %q{MongoDB -> SQL streaming bridge}
   gem.homepage      = "https://github.com/stripe/mosql"
-  gem.license = "MIT"
+  gem.license       = "MIT"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }

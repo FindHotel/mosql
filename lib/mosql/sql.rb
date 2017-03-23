@@ -69,6 +69,18 @@ module MoSQL
       end
     end
 
+    def update_primary_key_sequence(table, table_primary_keys)
+      if table_primary_keys == ["id"]
+        next_id = table.order(:id).last[:id]
+        return unless next_id.is_a?(0.class)
+        next_id += 1
+        table_name = table.first_source_table
+        sequence_altering_query = "ALTER SEQUENCE #{table_name}_id_seq RESTART WITH #{next_id}"
+        log.info("Updating primary key sequence for #{table_name} with #{next_id}")
+        table.db.run(sequence_altering_query)
+      end
+    end
+
     def self.duplicate_key_error?(e)
       # c.f. http://www.postgresql.org/docs/9.2/static/errcodes-appendix.html
       # for the list of error codes.
@@ -83,4 +95,3 @@ module MoSQL
     end
   end
 end
-
