@@ -206,14 +206,14 @@ EOF
       oid = [ BSON::ObjectId.new, BSON::ObjectId.new]
       o = {'_id' => "row 1", "str" => [ BSON::DBRef.new('db.otherns', oid[0]), BSON::DBRef.new('db.otherns', oid[1]) ] }
       out = @map.transform('db.collection', o)
-      assert_equal(["row 1", nil, JSON.dump(oid.map! {|o| o.to_s}), nil ], out)
+      assert_equal(["row 1", nil, JSON.dump(oid.map! {|val| val.to_s}), nil ], out)
     end
 
     it 'changes NaN to null in extra_props' do
       out = @map.transform('db.with_extra_props', {'_id' => 7, 'nancy' => 0.0/0.0})
       extra = JSON.parse(out[1])
       assert(extra.key?('nancy'))
-      assert_equal(nil, extra['nancy'])
+      assert_nil(extra['nancy'])
     end
 
     it 'base64-encodes BSON::Binary blobs in extra_props' do
@@ -321,7 +321,7 @@ EOF
     end
 
     it 'caches negative lookups' do
-      assert_equal(nil, @map.find_ns("nosuchdb.foo"))
+      assert_nil(@map.find_ns("nosuchdb.foo"))
       assert(@map.instance_variable_get(:@map).key?("nosuchdb"))
     end
 
@@ -406,7 +406,7 @@ EOF
 
     it 'rejects unknown specials' do
       assert_raises(MoSQL::SchemaError) do
-        r = @othermap.transform('db.invalid', { '_id' => 'a' })
+        @othermap.transform('db.invalid', { '_id' => 'a' })
       end
     end
   end

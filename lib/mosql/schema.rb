@@ -228,7 +228,9 @@ module MoSQL
           v = fetch_and_delete_dotted(obj, source)
           case v
           when Hash
-            v = JSON.dump(Hash[v.map { |k,v| [k, transform_primitive(v)] }])
+            v = JSON.dump(Hash[v.map { |k, primitive_value|
+              [k, transform_primitive(primitive_value)]
+            } ])
           when Array
             v = v.map { |it| transform_primitive(it) }
             if col[:array_type]

@@ -3,6 +3,8 @@
 > _**MoSQL is no longer being actively maintained.**_
 > _If you are interested in helping maintain this repository, please let us know.  We would love for it to find a forever home with someone who can give it the love it needs!_
 
+[![Development](https://travis-ci.org/FindHotel/mosql.svg?branch=master)](https://travis-ci.org/FindHotel/mosql)
+
 At Stripe, we love MongoDB. We love the flexibility it gives us in
 changing data schemas as we grow and learn, and we love its
 operational properties. We love replsets. We love the uniform query

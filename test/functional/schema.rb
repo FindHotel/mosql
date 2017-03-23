@@ -29,6 +29,19 @@ db:
       - var_b:
         :source: vars.b
         :type: TEXT
+  with_timestamps:
+    :meta:
+      :table: sqltable4
+      :timestamps: true
+      :extra_props: true
+    :columns:
+      - _id: TEXT
+      - var_a:
+        :source: vars.a
+        :type: TEXT
+      - var_b:
+        :source: vars.b
+        :type: TEXT
 EOF
 
   before do
@@ -37,12 +50,14 @@ EOF
     @sequel.drop_table?(:sqltable)
     @sequel.drop_table?(:sqltable2)
     @sequel.drop_table?(:sqltable3)
+    @sequel.drop_table?(:sqltable4)
     @map.create_schema(@sequel)
   end
 
   def table; @sequel[:sqltable]; end
   def table2; @sequel[:sqltable2]; end
   def table3; @sequel[:sqltable3]; end
+  def table4; @sequel[:sqltable4]; end
 
   it 'Creates the tables with the right columns' do
     assert_equal(Set.new([:_id, :var, :arry]),
@@ -95,6 +110,28 @@ EOF
     o = {'_id' => BSON::ObjectId.new, 'var' => 0}
     @map.copy_data(@sequel, 'db.collection', [ @map.transform('db.collection', o)] )
     assert_equal(o['_id'].to_s, table.select.first[:_id])
+  end
+
+  it 'Can ASSIGN timestamps' do
+    objects = [
+               {'_id' => "a", 'vars' => {'a' => 1, 'b' => 2}},
+               {'_id' => "b", 'vars' => {}},
+               {'_id' => "c", 'vars' => {'a' => 2, 'c' => 6}},
+              ]
+    @map.copy_data(@sequel, 'db.with_timestamps', objects.map { |o| @map.transform('db.with_timestamps', o) } )
+    assert_equal(3, table4.count)
+    o = table4.first(:_id => 'a')
+    assert_equal("1", o[:var_a])
+    assert_equal("2", o[:var_b])
+    assert_equal(Time, o[:created_at].class)
+
+    o = table4.first(:_id => 'b')
+    assert_equal({}, JSON.parse(o[:_extra_props]))
+    assert_equal(Time, o[:created_at].class)
+
+    o = table4.first(:_id => 'c')
+    assert_equal({'vars' => { 'c' => 6} }, JSON.parse(o[:_extra_props]))
+    assert_equal(Time, o[:created_at].class)
   end
 
   it 'Can transform BSON::ObjectIDs' do
