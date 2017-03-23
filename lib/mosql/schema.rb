@@ -99,6 +99,11 @@ module MoSQL
             end
 
             primary_key keys
+            if meta[:timestamps]
+              column 'created_at', 'TIMESTAMP'
+              column 'updated_at', 'TIMESTAMP'
+            end
+
             if meta[:extra_props]
               type =
                 case meta[:extra_props]
@@ -238,6 +243,12 @@ module MoSQL
         row << v
       end
 
+      if schema[:meta][:timestamps]
+        utc_time = Time.now.getutc
+        row << utc_time
+        row << utc_time
+      end
+
       if schema[:meta][:extra_props]
         extra = sanitize(obj)
         row << JSON.dump(extra)
@@ -276,6 +287,10 @@ module MoSQL
       cols = []
       schema[:columns].each do |col|
         cols << col[:name] unless copy && !copy_column?(col)
+      end
+      if schema[:meta][:timestamps]
+        cols << "created_at"
+        cols << "updated_at"
       end
       if schema[:meta][:extra_props]
         cols << "_extra_props"

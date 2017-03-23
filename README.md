@@ -69,6 +69,7 @@ types. An example collection map might be:
         - created: DOUBLE PRECISION
         :meta:
           :table: blog_posts
+          :timestamps: true
           :extra_props: true
 
 Said another way, the collection map is a YAML file containing a hash
@@ -105,7 +106,11 @@ attribute.
 
 `:meta` contains metadata about this collection/table. It is
 required to include at least `:table`, naming the SQL table this
-collection will be mapped to. `extra_props` determines the handling of
+collection will be mapped to.
+
+`:timestamps` adds the current timestamps to inserted data.
+
+`:extra_props` determines the handling of
 unknown fields in MongoDB objects -- more about that later.
 
 By default, `mosql` looks for a collection map in a file named
