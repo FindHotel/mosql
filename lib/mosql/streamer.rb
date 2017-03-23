@@ -201,7 +201,7 @@ module MoSQL
       # The oplog format of applyOps commands can be viewed here:
       # https://groups.google.com/forum/#!topic/mongodb-user/dTf5VEJJWvY
       if op['op'] == 'c' && (ops = op['o']['applyOps'])
-        ops.each { |op| handle_op(op) }
+        ops.each { |operation| handle_op(operation) }
         return
       end
 
@@ -211,7 +211,7 @@ module MoSQL
       end
 
       ns = op['ns']
-      dbname, collection_name = ns.split(".", 2)
+      _, collection_name = ns.split(".", 2)
 
       case op['op']
       when 'n'

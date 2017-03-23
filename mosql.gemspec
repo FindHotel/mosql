@@ -8,6 +8,7 @@ Gem::Specification.new do |gem|
   gem.description   = %q{A library for streaming MongoDB to SQL}
   gem.summary       = %q{MongoDB -> SQL streaming bridge}
   gem.homepage      = "https://github.com/stripe/mosql"
+  gem.license = "MIT"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
@@ -16,11 +17,11 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = MoSQL::VERSION
 
-  gem.add_runtime_dependency "sequel"
-  gem.add_runtime_dependency "pg"
-  gem.add_runtime_dependency "rake"
-  gem.add_runtime_dependency "log4r"
-  gem.add_runtime_dependency "json"
+  gem.add_runtime_dependency "sequel", "~> 4.44"
+  gem.add_runtime_dependency "pg", "~> 0.20"
+  gem.add_runtime_dependency "rake", "~> 12.0"
+  gem.add_runtime_dependency "log4r", "~> 1.1"
+  gem.add_runtime_dependency "json", "~> 2.0"
 
   gem.add_runtime_dependency "mongoriver", "0.4"
 
@@ -28,6 +29,6 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "bson", "~> 1.10"
   gem.add_runtime_dependency "bson_ext", "~> 1.10"
 
-  gem.add_development_dependency "minitest"
-  gem.add_development_dependency "mocha"
+  gem.add_development_dependency "minitest", "~> 5.10"
+  gem.add_development_dependency "mocha", "~> 1.2"
 end

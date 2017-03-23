@@ -160,8 +160,8 @@ module MoSQL
 
       val = obj.delete(pieces.first)
 
-      breadcrumbs.reverse.each do |obj, key|
-        obj.delete(key) if obj[key].empty?
+      breadcrumbs.reverse.each do |value, k|
+        value.delete(k) if value[k].empty?
       end
 
       val
