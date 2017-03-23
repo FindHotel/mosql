@@ -73,6 +73,8 @@ types. An example collection map might be:
           :table: blog_posts
           :timestamps: true
           :extra_props: true
+          :filter:
+            category: travel
 
 Said another way, the collection map is a YAML file containing a hash
 mapping
@@ -114,6 +116,15 @@ collection will be mapped to.
 
 `:extra_props` determines the handling of
 unknown fields in MongoDB objects -- more about that later.
+
+`:filter` is a property set to get a subset of the
+data in a MongoDB style query. For example, to move all blog posts
+satisfying this query `db.blog_posts.find({ category: 'travel' })` then
+add the filter as follows.
+
+    :meta:
+      :filter:
+        category: travel
 
 By default, `mosql` looks for a collection map in a file named
 `collections.yml` in your current working directory, but you can

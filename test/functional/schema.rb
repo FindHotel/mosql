@@ -124,14 +124,17 @@ EOF
     assert_equal("1", o[:var_a])
     assert_equal("2", o[:var_b])
     assert_equal(Time, o[:created_at].class)
+    assert_equal(Time, o[:updated_at].class)
 
     o = table4.first(:_id => 'b')
     assert_equal({}, JSON.parse(o[:_extra_props]))
     assert_equal(Time, o[:created_at].class)
+    assert_equal(Time, o[:updated_at].class)
 
     o = table4.first(:_id => 'c')
     assert_equal({'vars' => { 'c' => 6} }, JSON.parse(o[:_extra_props]))
     assert_equal(Time, o[:created_at].class)
+    assert_equal(Time, o[:updated_at].class)
   end
 
   it 'Can transform BSON::ObjectIDs' do
