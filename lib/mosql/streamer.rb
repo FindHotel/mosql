@@ -2,7 +2,7 @@ module MoSQL
   class Streamer
     include MoSQL::Logging
 
-    BATCH = 1000
+    DEFAULT_BATCH_SIZE = 1000
 
     attr_reader :options, :tailer
 
@@ -142,13 +142,13 @@ module MoSQL
 
       start    = Time.now
       sql_time = 0
-      collection.find(filter, :batch_size => BATCH) do |cursor|
+      collection.find(filter, :batch_size => DEFAULT_BATCH_SIZE) do |cursor|
         with_retries do
           cursor.each do |obj|
             batch << @schema.transform(ns, obj)
             count += 1
 
-            if batch.length >= BATCH
+            if batch.length >= DEFAULT_BATCH_SIZE
               sql_time += track_time do
                 bulk_upsert(table, ns, batch)
               end

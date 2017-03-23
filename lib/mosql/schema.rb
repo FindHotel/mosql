@@ -75,15 +75,15 @@ module MoSQL
       Sequel.default_timezone = :utc
     end
 
-    def create_schema(db, clobber=false)
+    def create_schema(db, drop_table=false)
       @map.values.each do |dbspec|
         dbspec.each do |n, collection|
           next unless n.is_a?(String)
           meta = collection[:meta]
           composite_key = meta[:composite_key]
           keys = []
-          log.info("Creating table '#{meta[:table]}'...")
-          db.send(clobber ? :create_table! : :create_table?, meta[:table]) do
+          log.info("Dropping and creating table '#{meta[:table]}'...") if drop_table
+          db.send(drop_table ? :create_table! : :create_table?, meta[:table]) do
             collection[:columns].each do |col|
               opts = {}
               if col[:source] == '$timestamp'

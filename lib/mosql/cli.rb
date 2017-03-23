@@ -7,8 +7,6 @@ module MoSQL
   class CLI
     include MoSQL::Logging
 
-    BATCH       = 1000
-
     attr_reader :args, :options, :tailer
 
     def self.run(args)
