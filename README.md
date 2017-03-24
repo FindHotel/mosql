@@ -73,6 +73,9 @@ types. An example collection map might be:
           :value: travel
           :type: TEXT
         - title: TEXT
+        - first_comment:
+          :source: $elem.comments.0
+          :type: TEXT
         - created: DOUBLE PRECISION
         :meta:
           :table: blog_posts

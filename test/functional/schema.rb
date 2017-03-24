@@ -54,6 +54,14 @@ db:
       - var_b:
         :value: 'harcoded_value::b'
         :type: TEXT
+  with_elem_source:
+    :meta:
+      :table: sqltable6
+    :columns:
+      - _id: TEXT
+      - var_0:
+        :source: $elem.vars.0
+        :type: TEXT
 EOF
 
   before do
@@ -64,6 +72,7 @@ EOF
     @sequel.drop_table?(:sqltable3)
     @sequel.drop_table?(:sqltable4)
     @sequel.drop_table?(:sqltable5)
+    @sequel.drop_table?(:sqltable6)
     @map.create_schema(@sequel)
   end
 
@@ -72,6 +81,7 @@ EOF
   def table3; @sequel[:sqltable3]; end
   def table4; @sequel[:sqltable4]; end
   def table5; @sequel[:sqltable5]; end
+  def table6; @sequel[:sqltable6]; end
 
   it 'Creates the tables with the right columns' do
     assert_equal(Set.new([:_id, :var, :arry]),
@@ -151,6 +161,7 @@ EOF
     assert_equal(Time, o[:updated_at].class)
   end
 
+
   it 'Can ASSIGN hardcoded values' do
     objects = [
                {'_id' => "a", 'vars' => {'a' => 1, 'b' => 2}},
@@ -170,6 +181,21 @@ EOF
     o = table5.first(:_id => 'c')
     assert_equal('harcoded_value_a', o[:var_a])
     assert_equal('harcoded_value::b', o[:var_b])
+  end
+
+  it 'Can FETCH elements by array index' do
+    objects = [
+      {'_id' => "a", 'vars' => ["hello", "world"]},
+      {'_id' => "b", 'vars' => ["life", "is", "good"]}
+    ]
+
+    @map.copy_data(@sequel, 'db.with_elem_source', objects.map { |o| @map.transform('db.with_elem_source', o) } )
+    assert_equal(2, table6.count)
+    o = table6.first(:_id => 'a')
+    assert_equal('hello', o[:var_0])
+
+    o = table6.first(:_id => 'b')
+    assert_equal('life', o[:var_0])
   end
 
   it 'Can transform BSON::ObjectIDs' do

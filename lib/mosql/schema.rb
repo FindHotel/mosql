@@ -172,6 +172,12 @@ module MoSQL
       obj.has_key?(pieces.first)
     end
 
+    def fetch_elem(obj, field_name, array_index)
+      field_value = obj[field_name]
+      return nil unless field_value
+      field_value[array_index.to_i]
+    end
+
     def fetch_special_source(obj, source, original)
       case source
       when "$timestamp"
@@ -180,6 +186,9 @@ module MoSQL
         # We need to look in the cloned original object, not in the version that
         # has had some fields deleted.
         fetch_exists(original, $1)
+      when /^\$elem.([a-zA-Z_]+).(\d+)/
+        # To fetch one element from array :source: $elem.0
+        fetch_elem(original, $1, $2)
       else
         raise SchemaError.new("Unknown source: #{source}")
       end
