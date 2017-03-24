@@ -2,11 +2,11 @@ PATH
   remote: .
   specs:
     mosql (0.5.0)
-      bson (~> 1.10)
-      bson_ext (~> 1.10)
+      bson (~> 1.12)
+      bson_ext (~> 1.12)
       json (~> 2.0)
       log4r (~> 1.1)
-      mongo (~> 1.10)
+      mongo (~> 1.12)
       mongoriver (= 0.4)
       pg (~> 0.20)
       rake (~> 12.0)

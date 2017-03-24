@@ -119,7 +119,7 @@ module MoSQL
     end
 
     def connect_mongo
-      @mongo = Mongo::MongoClient.from_uri(options[:mongo])
+      @mongo = Mongo::MongoClient.from_uri(options[:mongo], op_timeout: 60)
       config = @mongo['admin'].command(:ismaster => 1)
       if !config['setName'] && !options[:skip_tail]
         log.warn("`#{options[:mongo]}' is not a replset.")

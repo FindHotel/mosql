@@ -132,7 +132,7 @@ module MoSQL
 
     def import_collection(ns, collection, filter)
       log.info("Importing for #{ns}...")
-      log.info("Filter applied #{filter}, #{collection.class}") if filter
+      log.info("Filter applied #{filter} on #{collection.name}") if filter
       count = 0
       batch = []
       table = @sql.table_for_ns(ns)
@@ -143,7 +143,7 @@ module MoSQL
 
       start    = Time.now
       sql_time = 0
-      total_count = collection.count(filter)
+      total_count = collection.count(query: filter)
       collection.find(filter, :batch_size => DEFAULT_BATCH_SIZE) do |cursor|
         with_retries do
           cursor.each do |obj|
@@ -155,7 +155,8 @@ module MoSQL
                 bulk_upsert(table, ns, batch)
               end
               elapsed = Time.now - start
-              log.info("Imported #{count}/#{total_count} rows (#{elapsed}s, #{sql_time}s SQL)...")
+              percent_done = ((count.to_f / total_count.to_f) * 100).round(1)
+              log.info("[#{collection.name} #{percent_done}%] Imported #{count}/#{total_count} rows (#{elapsed.round(1)}s, #{sql_time.round(1)}s SQL time)")
               batch.clear
               exit(0) if @done
             end
