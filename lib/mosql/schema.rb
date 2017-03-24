@@ -4,32 +4,53 @@ module MoSQL
   class Schema
     include MoSQL::Logging
 
+    def initialize(map)
+      @map = {}
+      map.each do |dbname, db|
+        @map[dbname] = { :meta => parse_meta(db[:meta]) }
+        db.each do |cname, spec|
+          next unless cname.is_a?(String)
+          begin
+            @map[dbname][cname] = parse_spec("#{dbname}.#{cname}", spec)
+          rescue KeyError => e
+            raise SchemaError.new("In spec for #{dbname}.#{cname}: #{e}")
+          end
+        end
+      end
+
+      # Lurky way to force Sequel force all timestamps to use UTC.
+      Sequel.default_timezone = :utc
+    end
+
     def to_array(lst)
       lst.map do |ent|
         col = nil
         if ent.is_a?(Hash) && ent[:source].is_a?(String) && ent[:type].is_a?(String)
           # new configuration format
           col = {
-            :source => ent.fetch(:source),
-            :value  => ent[:value],
-            :type   => ent.fetch(:type),
-            :name   => (ent.keys - [:source, :type]).first,
+            :source      => ent.fetch(:source),
+            :value       => ent[:value],
+            :type        => ent.fetch(:type),
+            :name        => (ent.keys - [:source, :type]).first,
+            :default     => ent[:default],
             :conversions => ent[:conversions],
           }
         elsif ent.is_a?(Hash) && ent.keys.length == 1 && ent.values.first.is_a?(String)
           col = {
-            :source => ent.first.first,
-            :name   => ent.first.first,
-            :type   => ent.first.last,
+            :source      => ent.first.first,
+            :name        => ent.first.first,
+            :type        => ent.first.last,
+            :default     => ent[:default],
             :conversions => ent[:conversions],
           }
         elsif ent.is_a?(Hash) && !ent[:value].nil? && ent[:type].is_a?(String)
           # hardcoded value format
           col = {
-            :source => nil,
-            :value  => ent.fetch(:value),
-            :type   => ent.fetch(:type),
-            :name   => (ent.keys - [:source, :type]).first,
+            :source      => nil,
+            :value       => ent.fetch(:value),
+            :type        => ent.fetch(:type),
+            :name        => (ent.keys - [:source, :type]).first,
+            :default     => ent[:default],
             :conversions => ent[:conversions],
           }
         else
@@ -67,24 +88,6 @@ module MoSQL
       meta[:alias] = [meta[:alias]] unless meta[:alias].is_a?(Array)
       meta[:alias] = meta[:alias].map { |r| Regexp.new(r) }
       meta
-    end
-
-    def initialize(map)
-      @map = {}
-      map.each do |dbname, db|
-        @map[dbname] = { :meta => parse_meta(db[:meta]) }
-        db.each do |cname, spec|
-          next unless cname.is_a?(String)
-          begin
-            @map[dbname][cname] = parse_spec("#{dbname}.#{cname}", spec)
-          rescue KeyError => e
-            raise SchemaError.new("In spec for #{dbname}.#{cname}: #{e}")
-          end
-        end
-      end
-
-      # Lurky way to force Sequel force all timestamps to use UTC.
-      Sequel.default_timezone = :utc
     end
 
     def create_schema(db, drop_table=false)
@@ -282,6 +285,7 @@ module MoSQL
         if conversions
           v = conversions[v]
           v ||= v
+          v ||= col[:default]
         end
 
         row << v

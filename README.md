@@ -79,6 +79,7 @@ types. An example collection map might be:
         - domain
           :source: domain
           :type: INTEGER
+          :default: 0
           :conversions:
             blog.findhotel.net: 0
             company.findhotel.net: 1
@@ -105,6 +106,7 @@ describing that column. This hash may contain the following fields:
   * `:source`: The name of the attribute inside of MongoDB.
   * `:value`: Assign a static value to column (overrides :source if present).
   * `:type`: (Mandatory) The SQL type.
+  * `:default`: Set default value if it was `null`.
   * `:conversions`: Can be used to convert values to another; for example
   when changing a string field to an integer enumeration.
 
