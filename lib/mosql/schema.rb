@@ -292,7 +292,7 @@ module MoSQL
         end
 
         if !default_v.nil? && v.nil?
-          row << col[:default]
+          row << default_v
         else
           row << v
         end
