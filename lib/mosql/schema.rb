@@ -107,7 +107,12 @@ module MoSQL
               end
             end
 
-            primary_key keys
+            if meta[:auto_increment_id_pkey]
+              primary_key :id
+            else
+              primary_key keys
+            end
+
             if meta[:timestamps]
               column 'created_at', 'TIMESTAMP'
               column 'updated_at', 'TIMESTAMP'
@@ -374,7 +379,12 @@ module MoSQL
       if ns[:meta][:composite_key]
         keys = ns[:meta][:composite_key]
       else
-        keys << ns[:columns].find {|c| c[:source] == '_id'}[:name]
+        key_fetcher = ns[:columns].find {|c| c[:source] == '_id'}
+        if key_fetcher
+          keys << key_fetcher[:name]
+        else
+          keys = [:id]
+        end
       end
 
       return keys

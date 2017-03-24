@@ -77,6 +77,7 @@ types. An example collection map might be:
         :meta:
           :table: blog_posts
           :timestamps: true
+          # :auto_increment_id_pkey: true
           :extra_props: true
           :filter:
             category: travel
@@ -119,6 +120,9 @@ required to include at least `:table`, naming the SQL table this
 collection will be mapped to.
 
 `:timestamps` adds the current timestamps to inserted data.
+
+`:auto_increment_id_pkey:` add an auto increment id public key but COMPROMISES
+uniqueness of data.
 
 `:extra_props` determines the handling of
 unknown fields in MongoDB objects -- more about that later.
