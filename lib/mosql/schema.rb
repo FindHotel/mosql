@@ -175,7 +175,14 @@ module MoSQL
     def fetch_elem(obj, field_name, array_index)
       field_value = obj[field_name]
       return nil unless field_value
-      field_value[array_index.to_i]
+      element = field_value[array_index.to_i]
+      if element.is_a?(Hash)
+        JSON.dump(Hash[element.map { |k, primitive_value|
+          [k, transform_primitive(primitive_value)]
+        } ])
+      else
+        element
+      end
     end
 
     def fetch_special_source(obj, source, original)
