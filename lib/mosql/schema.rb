@@ -258,6 +258,7 @@ module MoSQL
         value = col[:value]
         type = col[:type]
         conversions = col[:conversions]
+        default_v = col[:default]
 
         if value
           v = value
@@ -283,12 +284,18 @@ module MoSQL
         end
 
         if conversions
+          previous_v = v
           v = conversions[v]
-          v ||= v
-          v ||= col[:default]
+          if v.nil?
+            v = previous_v
+          end
         end
 
-        row << v
+        if !default_v.nil? && v.nil?
+          row << col[:default]
+        else
+          row << v
+        end
       end
 
       if schema[:meta][:timestamps]
