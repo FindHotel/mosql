@@ -1,3 +1,4 @@
 collections.yml
 /.bundle/
 *.gem
+.byebug_history

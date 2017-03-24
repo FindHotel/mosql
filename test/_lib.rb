@@ -4,6 +4,7 @@ require 'bundler/setup'
 require 'minitest/autorun'
 require 'minitest/spec'
 require 'mocha'
+require 'byebug'
 
 $:.unshift(File.expand_path(File.join(File.dirname(__FILE__), '../lib')))
 
