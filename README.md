@@ -76,6 +76,12 @@ types. An example collection map might be:
         - first_comment:
           :source: $elem.comments.0
           :type: TEXT
+        - domain
+          :source: domain
+          :type: INTEGER
+          :conversions:
+            blog.findhotel.net: 0
+            company.findhotel.net: 1
         - created: DOUBLE PRECISION
         :meta:
           :table: blog_posts
@@ -97,8 +103,10 @@ Where a `<Collection Definition>` is a hash with `:columns` and
 describing that column. This hash may contain the following fields:
 
   * `:source`: The name of the attribute inside of MongoDB.
-  * `:value`: Assign a static value to column (overrides :source if present)
+  * `:value`: Assign a static value to column (overrides :source if present).
   * `:type`: (Mandatory) The SQL type.
+  * `:conversions`: Can be used to convert values to another; for example
+  when changing a string field to an integer enumeration.
 
 
 Use of the `:source` attribute allows for renaming attributes, and

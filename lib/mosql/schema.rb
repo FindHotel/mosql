@@ -14,12 +14,14 @@ module MoSQL
             :value  => ent[:value],
             :type   => ent.fetch(:type),
             :name   => (ent.keys - [:source, :type]).first,
+            :conversions => ent[:conversions],
           }
         elsif ent.is_a?(Hash) && ent.keys.length == 1 && ent.values.first.is_a?(String)
           col = {
             :source => ent.first.first,
             :name   => ent.first.first,
-            :type   => ent.first.last
+            :type   => ent.first.last,
+            :conversions => ent[:conversions],
           }
         elsif ent.is_a?(Hash) && !ent[:value].nil? && ent[:type].is_a?(String)
           # hardcoded value format
@@ -28,6 +30,7 @@ module MoSQL
             :value  => ent.fetch(:value),
             :type   => ent.fetch(:type),
             :name   => (ent.keys - [:source, :type]).first,
+            :conversions => ent[:conversions],
           }
         else
           raise SchemaError.new("Invalid ordered hash entry #{ent.inspect}")
@@ -251,6 +254,7 @@ module MoSQL
         source = col[:source]
         value = col[:value]
         type = col[:type]
+        conversions = col[:conversions]
 
         if value
           v = value
@@ -274,6 +278,12 @@ module MoSQL
             v = transform_primitive(v, type)
           end
         end
+
+        if conversions
+          v = conversions[v]
+          v ||= v
+        end
+
         row << v
       end
 
