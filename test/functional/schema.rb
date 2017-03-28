@@ -62,6 +62,15 @@ db:
       - var_0:
         :source: $elem.vars.0
         :type: TEXT
+  with_default:
+    :meta:
+      :table: sqltable7
+    :columns:
+      - _id: TEXT
+      - var_0:
+        :source: $elem.vars.0
+        :default: "{ 1, 2 }"
+        :type: INTEGER ARRAY
 EOF
 
   before do
@@ -73,6 +82,7 @@ EOF
     @sequel.drop_table?(:sqltable4)
     @sequel.drop_table?(:sqltable5)
     @sequel.drop_table?(:sqltable6)
+    @sequel.drop_table?(:sqltable7)
     @map.create_schema(@sequel)
   end
 
@@ -82,6 +92,7 @@ EOF
   def table4; @sequel[:sqltable4]; end
   def table5; @sequel[:sqltable5]; end
   def table6; @sequel[:sqltable6]; end
+  def table7; @sequel[:sqltable7]; end
 
   it 'Creates the tables with the right columns' do
     assert_equal(Set.new([:_id, :var, :arry]),
@@ -196,6 +207,21 @@ EOF
 
     o = table6.first(:_id => 'b')
     assert_equal('life', o[:var_0])
+  end
+
+  it 'Can FETCH elements by array index' do
+    objects = [
+      {'_id' => "a", 'vars' => ["{1}"]},
+      {'_id' => "b", 'vars' => []}
+    ]
+
+    @map.copy_data(@sequel, 'db.with_default', objects.map { |o| @map.transform('db.with_default', o) } )
+    assert_equal(2, table7.count)
+    o = table7.first(:_id => 'a')
+    assert_equal([1], o[:var_0])
+
+    o = table7.first(:_id => 'b')
+    assert_equal([1, 2], o[:var_0])
   end
 
   it 'Can transform BSON::ObjectIDs' do
