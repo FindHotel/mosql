@@ -51,7 +51,6 @@ module MoSQL
     def bulk_upsert(table, ns, items)
       begin
         @schema.copy_data(table.db, ns, items)
-        @sql.update_primary_key_sequence(table, @schema.primary_sql_key_for_ns(ns))
       rescue Sequel::DatabaseError => e
         log.debug("Bulk insert error (#{e}), attempting invidual upserts...")
         cols = @schema.all_columns(@schema.find_ns(ns))
@@ -62,6 +61,8 @@ module MoSQL
             @sql.upsert!(table, @schema.primary_sql_key_for_ns(ns), h)
           end
         end
+      ensure
+        @sql.update_primary_key_sequence(table, @schema.primary_sql_key_for_ns(ns))
       end
     end
 
