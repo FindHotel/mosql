@@ -68,7 +68,7 @@ module MoSQL
     def check_columns!(ns, spec)
       seen = Set.new
       spec[:columns].each do |col|
-        if seen.include?(col[:source])
+        if seen.include?(col[:source]) and col[:value].nil?
           raise SchemaError.new("Duplicate source #{col[:source]} in column definition #{col[:name]} for #{ns}.")
         end
         seen.add(col[:source])
