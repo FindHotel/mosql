@@ -165,11 +165,11 @@ module MoSQL
         end
       end
 
-      log.info("[#{collection.name} (#{filter}) DONE] Imported #{total_count} rows")
 
       unless batch.empty?
         bulk_upsert(table, ns, batch)
       end
+      log.info("[#{collection.name} (#{filter}) DONE] Imported #{total_count} rows")
     end
 
     def optail
