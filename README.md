@@ -45,6 +45,30 @@ Or build from source by:
 
 And then install the built gem.
 
+## CLI
+
+```
+-h, --help                       Display this message
+-v                               Increase verbosity
+-c [collections.yml],            Collection map YAML file
+    --collections
+    --sql [sqluri]               SQL server to connect to
+    --mongo [mongouri]           Mongo connection string
+    --schema [schema]            PostgreSQL 'schema' to namespace tables
+    --ignore-delete              Ignore delete operations when tailing
+    --only-db [dbname]           Don't scan for mongo dbs, just use the one specified
+    --timeout [timeout]          Specify a timeout for mongo operations
+    --batch-size [batchsize]     Specify a batch size for mongo collections
+    --tail-from [timestamp]      Start tailing from the specified UNIX timestamp
+    --service [service]          Service name to use when storing tailing state
+    --skip-tail                  Don't tail the oplog, just do the initial import
+    --skip-import                Don't import data before tailing oplog
+    --reimport                   Force a data re-import
+    --no-drop-tables             Don't drop the table if it exists during the initial import
+    --unsafe                     Ignore rows that cause errors on insert
+    --oplog-filter [filter]      An additional JSON filter for the oplog query
+```
+
 ## The Collection Map file
 
 In order to define a SQL schema and import your data, MoSQL needs a
