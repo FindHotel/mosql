@@ -36,7 +36,8 @@ module MoSQL
         sql: 'postgres:///',
         mongo: 'mongodb://localhost',
         verbose: 0,
-        op_timeout: 60
+        op_timeout: 60,
+        batch_size: Streamer::DEFAULT_BATCH_SIZE
       }
 
       optparse = OptionParser.new do |opts|
@@ -77,6 +78,11 @@ module MoSQL
 
         opts.on("--timeout [timeout]", "Specify a timeout for mongo operations") do |timeout|
           @options[:op_timeout] = timeout.to_i
+        end
+
+        opts.on("--batch-size [batchsize]", "Specify a batch size for mongo collections") do |batch_size|
+          abort('zero/invalid batch size') if batch_size.to_i.zero?
+          @options[:batch_size] = batch_size.to_i
         end
 
         opts.on("--tail-from [timestamp]", "Start tailing from the specified UNIX timestamp") do |ts|

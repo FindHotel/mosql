@@ -135,6 +135,7 @@ module MoSQL
       log.info("Importing for #{ns}...")
       log.info("Filter applied #{filter} on #{collection.name}") if filter
       count = 0
+      batch_size = options[:batch_size] || DEFAULT_BATCH_SIZE
       batch = []
       table = @sql.table_for_ns(ns)
       unless options[:no_drop_tables] || did_truncate[table.first_source]
@@ -145,13 +146,13 @@ module MoSQL
       start    = Time.now
       sql_time = 0
       total_count = collection.count(query: filter)
-      collection.find(filter, :batch_size => DEFAULT_BATCH_SIZE) do |cursor|
+      collection.find(filter, batch_size: batch_size) do |cursor|
         with_retries do
           cursor.each do |obj|
             batch << @schema.transform(ns, obj)
             count += 1
 
-            if batch.length >= DEFAULT_BATCH_SIZE
+            if batch.length >= batch_size
               sql_time += track_time do
                 bulk_upsert(table, ns, batch)
               end
