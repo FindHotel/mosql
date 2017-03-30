@@ -32,11 +32,13 @@ module MoSQL
 
     def parse_args
       @options = {
-        :collections => 'collections.yml',
-        :sql    => 'postgres:///',
-        :mongo  => 'mongodb://localhost',
-        :verbose => 0
+        collections: 'collections.yml',
+        sql: 'postgres:///',
+        mongo: 'mongodb://localhost',
+        verbose: 0,
+        op_timeout: 60
       }
+
       optparse = OptionParser.new do |opts|
         opts.banner = "Usage: #{$0} [options] "
 
@@ -71,6 +73,10 @@ module MoSQL
 
         opts.on("--only-db [dbname]", "Don't scan for mongo dbs, just use the one specified") do |dbname|
           @options[:dbname] = dbname
+        end
+
+        opts.on("--timeout [timeout]", "Specify a timeout for mongo operations") do |timeout|
+          @options[:op_timeout] = timeout.to_i
         end
 
         opts.on("--tail-from [timestamp]", "Start tailing from the specified UNIX timestamp") do |ts|
@@ -119,7 +125,7 @@ module MoSQL
     end
 
     def connect_mongo
-      @mongo = Mongo::MongoClient.from_uri(options[:mongo], op_timeout: 60)
+      @mongo = Mongo::MongoClient.from_uri(options[:mongo], op_timeout: options[:op_timeout])
       config = @mongo['admin'].command(:ismaster => 1)
       if !config['setName'] && !options[:skip_tail]
         log.warn("`#{options[:mongo]}' is not a replset.")
