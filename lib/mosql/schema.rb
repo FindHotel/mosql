@@ -34,6 +34,7 @@ module MoSQL
             :name        => (ent.keys - [:source, :type]).first,
             :default     => ent[:default],
             :conversions => ent[:conversions],
+            :eval        => ent[:eval],
           }
         elsif ent.is_a?(Hash) && ent.keys.length == 1 && ent.values.first.is_a?(String)
           col = {
@@ -42,6 +43,7 @@ module MoSQL
             :type        => ent.first.last,
             :default     => ent[:default],
             :conversions => ent[:conversions],
+            :eval        => ent[:eval],
           }
         elsif ent.is_a?(Hash) && !ent[:value].nil? && ent[:type].is_a?(String)
           # hardcoded value format
@@ -52,6 +54,7 @@ module MoSQL
             :name        => (ent.keys - [:source, :type]).first,
             :default     => ent[:default],
             :conversions => ent[:conversions],
+            :eval        => ent[:eval],
           }
         else
           raise SchemaError.new("Invalid ordered hash entry #{ent.inspect}")
@@ -266,6 +269,7 @@ module MoSQL
           v = fetch_special_source(obj, source, original)
         else
           v = fetch_and_delete_dotted(obj, source)
+          v = eval(v) if col[:eval] && v
           case v
           when Hash
             v = JSON.dump(Hash[v.map { |k, primitive_value|
