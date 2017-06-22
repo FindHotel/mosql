@@ -279,6 +279,8 @@ module MoSQL
             v = v.map { |it| transform_primitive(it) }
             if col[:array_type]
               v = Sequel.pg_array(v, col[:array_type])
+            elsif type == 'BIT VARYING'
+              v = v.map { |b| b ? 1 : 0 }.join
             else
               v = JSON.dump(v)
             end
