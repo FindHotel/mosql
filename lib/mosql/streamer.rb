@@ -56,7 +56,7 @@ module MoSQL
         cols = @schema.all_columns(@schema.find_ns(ns))
         items.each do |it|
           h = {}
-          cols.zip(it).each { |k,v| h[k] = v }
+          cols.zip(it).each { |k, v| h[k] = v }
           unsafe_handle_exceptions(ns, h) do
             @sql.upsert!(table, @schema.primary_sql_key_for_ns(ns), h)
           end

@@ -366,8 +366,9 @@ module MoSQL
     def copy_data(db, ns, objs)
       schema = find_ns!(ns)
       db.synchronize do |pg|
-        sql = "COPY \"#{schema[:meta][:table]}\" " +
-          "(#{all_columns_for_copy(schema).map {|c| "\"#{c}\""}.join(",")}) FROM STDIN"
+        this = all_columns_for_copy(schema)
+               .map { |c| "\"#{c}\"" }.join(', ')
+        sql = "COPY \"#{schema[:meta][:table]}\" (#{this}) FROM STDIN"
         pg.execute(sql)
         objs.each do |o|
           pg.put_copy_data(transform_to_copy(ns, o, schema) + "\n")
