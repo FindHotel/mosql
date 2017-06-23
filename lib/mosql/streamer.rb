@@ -50,7 +50,8 @@ module MoSQL
 
     def bulk_upsert(table, ns, items)
       begin
-        @schema.copy_data(table.db, ns, items)
+        cols = @schema.all_columns(@schema.find_ns(ns)).map(&:to_sym)
+        table.import(cols, items)
       rescue Sequel::DatabaseError => e
         log.debug("Bulk insert error (#{e}), attempting invidual upserts...")
         cols = @schema.all_columns(@schema.find_ns(ns))
