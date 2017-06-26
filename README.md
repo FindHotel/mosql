@@ -107,6 +107,20 @@ types. An example collection map might be:
           :conversions:
             blog.findhotel.net: 0
             company.findhotel.net: 1
+        - readers:
+          :sources:
+            - AM
+            - EU
+            - AF
+            - AS
+            - AU
+          :keys:
+            - Americas
+            - Europe
+            - Africa
+            - Asia
+            - Australia
+          :type: JSONB
         - created: DOUBLE PRECISION
         :meta:
           :table: blog_posts
@@ -132,6 +146,7 @@ describing that column. This hash may contain the following fields:
   * `:type`: (Mandatory) The SQL type.
   * `:default`: Set default value if it was `null`.
   * `:conversions`: Can be used to convert values to another; for example
+  * `:sources:` and `:keys:` are used together to convert multiple mongo fields to one JSON, JSONB or HSTORE as described above.
   when changing a string field to an integer enumeration.
 
 

@@ -85,8 +85,12 @@ module MoSQL
       spec[:columns].each do |col|
         if seen.include?(col[:source]) && col[:value].nil? && col[:sources].nil?
           raise SchemaError.new("Duplicate source #{col[:source]} in column definition #{col[:name]} for #{ns}.")
+        elsif col[:sources] && (col[:sources] - seen).size < col[:sources].size
+          raise SchemaError.new("Duplicate sources #{col[:sources].join(' - ')} in column definition #{col[:name]} for #{ns}.")
         end
-        seen.add(col[:source])
+
+        seen.add(col[:source]) if col[:source]
+        col[:sources].each { |source| seen.add(source) } if col[:sources]
       end
     end
 
