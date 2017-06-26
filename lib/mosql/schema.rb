@@ -25,7 +25,19 @@ module MoSQL
     def to_array(lst)
       lst.map do |ent|
         col = nil
-        if ent.is_a?(Hash) && ent[:source].is_a?(String) && ent[:type].is_a?(String)
+        raise SchemaError.new("Invalid ordered hash entry #{ent.inspect}") unless ent.is_a?(Hash)
+        if ent[:sources].is_a?(Array) && ent[:keys].is_a?(Array) && ent[:type].is_a?(String)
+          col = {
+            :sources     => ent.fetch(:sources),
+            :keys        => ent.fetch(:keys),
+            :value       => ent[:value],
+            :type        => ent.fetch(:type),
+            :name        => (ent.keys - [:source, :type]).first,
+            :default     => ent[:default],
+            :conversions => ent[:conversions],
+            :eval        => ent[:eval],
+          }
+        elsif ent[:source].is_a?(String) && ent[:type].is_a?(String)
           # new configuration format
           col = {
             :source      => ent.fetch(:source),
@@ -36,7 +48,7 @@ module MoSQL
             :conversions => ent[:conversions],
             :eval        => ent[:eval],
           }
-        elsif ent.is_a?(Hash) && ent.keys.length == 1 && ent.values.first.is_a?(String)
+        elsif ent.keys.length == 1 && ent.values.first.is_a?(String)
           col = {
             :source      => ent.first.first,
             :name        => ent.first.first,
@@ -45,7 +57,7 @@ module MoSQL
             :conversions => ent[:conversions],
             :eval        => ent[:eval],
           }
-        elsif ent.is_a?(Hash) && !ent[:value].nil? && ent[:type].is_a?(String)
+        elsif !ent[:value].nil? && ent[:type].is_a?(String)
           # hardcoded value format
           col = {
             :source      => nil,
@@ -71,7 +83,7 @@ module MoSQL
     def check_columns!(ns, spec)
       seen = Set.new
       spec[:columns].each do |col|
-        if seen.include?(col[:source]) and col[:value].nil?
+        if seen.include?(col[:source]) && col[:value].nil? && col[:sources].nil?
           raise SchemaError.new("Duplicate source #{col[:source]} in column definition #{col[:name]} for #{ns}.")
         end
         seen.add(col[:source])
@@ -229,6 +241,17 @@ module MoSQL
       val
     end
 
+    def fetch_multiple_and_convert_to_hash(obj, sources, keys)
+      val = {}
+      sources.each_with_index do |source, idx|
+        val[keys[idx]] = obj[source] if obj[source]
+      end
+
+      JSON.dump(Hash[val.map { |k, primitive_value|
+        [k, transform_primitive(primitive_value)]
+      } ])
+    end
+
     def transform_primitive(v, type=nil)
       case v
       when BSON::ObjectId, Symbol
@@ -258,6 +281,8 @@ module MoSQL
       row = []
       schema[:columns].each do |col|
         source = col[:source]
+        sources = col[:sources]
+        keys = col[:keys]
         value = col[:value]
         type = col[:type]
         conversions = col[:conversions]
@@ -265,6 +290,8 @@ module MoSQL
 
         if value
           v = value
+        elsif sources && keys
+          v = fetch_multiple_and_convert_to_hash(obj, sources, keys)
         elsif source.start_with?("$")
           v = fetch_special_source(obj, source, original)
         else
