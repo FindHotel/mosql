@@ -1,3 +1,5 @@
+require 'set'
+
 module MoSQL
   class SchemaError < StandardError; end;
 
